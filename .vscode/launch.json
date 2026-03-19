@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Alexandria One Click",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/one_click_browser.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--host",
+        "0.0.0.0",
+        "--reload"
+      ],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

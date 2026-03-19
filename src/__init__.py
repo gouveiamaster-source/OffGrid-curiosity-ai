@@ -1,0 +1,1 @@
+"""Pacote Alexandria-AI."""

@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alexandria-AI 🏛️</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #7ee787;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --danger: #f85149;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    header {
+      padding: 1.2rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 { font-size: 1.4rem; font-weight: 700; }
+    header span { color: var(--muted); font-size: 0.85rem; }
+    #status-badge {
+      margin-left: auto;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      background: #1a3a2a;
+      color: var(--accent2);
+      border: 1px solid var(--accent2);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 0;
+      height: calc(100vh - 61px);
+    }
+
+    /* ── Sidebar ── */
+    aside {
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Content ── */
+    #content {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 0.8rem 1.4rem;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .tab-panel { display: none; flex: 1; overflow-y: auto; padding: 1.5rem; }
+    .tab-panel.active { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* ── Cards & Section titles ── */
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+
+    /* ── Upload zone ── */
+    #drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    #drop-zone:hover, #drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(88, 166, 255, 0.05);
+    }
+    #drop-zone p { color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; }
+    #file-input { display: none; }
+
+    /* ── Stats ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.7rem;
+      text-align: center;
+    }
+    .stat-box .num { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    .stat-box .lbl { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── Doc list ── */
+    #doc-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .doc-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.7rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.82rem;
+    }
+    .doc-item .doc-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .doc-item .del-btn {
+      background: none; border: none; color: var(--danger);
+      cursor: pointer; font-size: 1rem; flex-shrink: 0;
+    }
+    .doc-item .view-btn {
+      background: none; border: none; color: var(--accent2);
+      cursor: pointer; font-size: 0.95rem; flex-shrink: 0;
+    }
+
+    /* ── Search ── */
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .search-bar input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-bar input:focus { border-color: var(--accent); }
+    .search-bar select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 0.5rem;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-danger  { background: var(--danger); color: #fff; }
+
+    /* ── Result cards ── */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+    }
+    .result-card .result-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .result-card .filename { color: var(--accent); font-weight: 600; font-size: 0.9rem; }
+    .result-card .score {
+      background: rgba(126, 231, 135, 0.15);
+      color: var(--accent2);
+      border-radius: 4px;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.78rem;
+    }
+    .result-card .snippet {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.5;
+      max-height: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Graph ── */
+    #graph-canvas {
+      flex: 1;
+      background: var(--bg);
+    }
+    .graph-controls {
+      display: flex;
+      gap: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--radius);
+      font-size: 0.88rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; }
+    #toast.ok  { background: #1a3a2a; color: var(--accent2); border: 1px solid var(--accent2); }
+    #toast.err { background: #3a1a1a; color: var(--danger); border: 1px solid var(--danger); }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid var(--muted);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #empty-search {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 3rem;
+      font-size: 0.95rem;
+    }
+
+    /* ── Viewer ── */
+    .viewer-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .viewer-title {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin-left: auto;
+      max-width: 50%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .viewer-body {
+      flex: 1;
+      min-height: 280px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      overflow: auto;
+      line-height: 1.55;
+      font-size: 0.9rem;
+    }
+    .viewer-plain {
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--text);
+    }
+    .viewer-rich {
+      color: var(--text);
+    }
+    .viewer-rich h1, .viewer-rich h2, .viewer-rich h3 { margin: 0.6rem 0; }
+    .viewer-rich p { margin: 0.45rem 0; }
+    .viewer-rich code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #0f141a;
+      border: 1px solid var(--border);
+      padding: 0.1rem 0.25rem;
+      border-radius: 4px;
+    }
+    .viewer-rich pre {
+      background: #0f141a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.8rem;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span style="font-size:1.6rem">🏛️</span>
+  <div>
+    <h1>Alexandria-AI</h1>
+    <span>Motor de conhecimento off-grid</span>
+  </div>
+  <div id="status-badge">● online</div>
+</header>
+
+<main>
+  <!-- ── Sidebar ── -->
+  <aside>
+    <!-- Upload -->
+    <div>
+      <div class="section-title">Ingerir Documento</div>
+      <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div>📁 Clique ou arraste um arquivo</div>
+        <p>PDF · TXT · MD · HTML</p>
+      </div>
+      <input type="file" id="file-input" accept=".pdf,.txt,.md,.html,.htm" />
+      <div id="upload-status" style="margin-top:0.5rem;font-size:0.82rem;color:var(--muted)"></div>
+    </div>
+
+    <!-- Stats -->
+    <div>
+      <div class="section-title">Estatísticas</div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="num" id="stat-docs">–</div><div class="lbl">Documentos</div></div>
+        <div class="stat-box"><div class="num" id="stat-nodes">–</div><div class="lbl">Nós do Grafo</div></div>
+        <div class="stat-box"><div class="num" id="stat-edges">–</div><div class="lbl">Arestas</div></div>
+        <div class="stat-box"><div class="num" id="stat-ents">–</div><div class="lbl">Entidades</div></div>
+      </div>
+    </div>
+
+    <!-- Documentos -->
+    <div style="flex:1;min-height:0;overflow-y:auto">
+      <div class="section-title">Documentos Indexados</div>
+      <div id="doc-list"><span style="color:var(--muted);font-size:0.82rem">Nenhum documento ainda.</span></div>
+    </div>
+  </aside>
+
+  <!-- ── Content area ── -->
+  <div id="content">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="search">🔍 Busca Semântica</button>
+      <button class="tab-btn" data-tab="graph">🕸️ Grafo de Conhecimento</button>
+      <button class="tab-btn" data-tab="viewer">📖 Visualizador</button>
+      <button class="tab-btn" data-tab="gutenberg">📚 Gutenberg</button>
+    </div>
+
+    <!-- Search tab -->
+    <div id="tab-search" class="tab-panel active">
+      <div class="search-bar">
+        <input type="text" id="query-input" placeholder="O que você quer encontrar?" />
+        <select id="topk-sel">
+          <option value="3">Top 3</option>
+          <option value="5" selected>Top 5</option>
+          <option value="10">Top 10</option>
+        </select>
+        <button class="btn btn-primary" onclick="doSearch()">Buscar</button>
+      </div>
+      <div id="search-results">
+        <div id="empty-search">Digite uma consulta e clique em Buscar.</div>
+      </div>
+    </div>
+
+    <!-- Graph tab -->
+    <div id="tab-graph" class="tab-panel">
+      <div class="graph-controls">
+        <button class="btn btn-primary" onclick="loadGraph()">↻ Recarregar Grafo</button>
+        <span id="graph-info" style="color:var(--muted);font-size:0.82rem;line-height:2"></span>
+      </div>
+      <canvas id="graph-canvas"></canvas>
+    </div>
+
+    <!-- Viewer tab -->
+    <div id="tab-viewer" class="tab-panel">
+      <div class="viewer-toolbar">
+        <button class="btn btn-primary" id="viewer-plain-btn" onclick="setViewerMode('plain')">Plain</button>
+        <button class="btn" id="viewer-rich-btn" onclick="setViewerMode('rich')">Rich</button>
+        <span class="viewer-title" id="viewer-title">Nenhum documento selecionado.</span>
+      </div>
+      <div class="viewer-body">
+        <div id="viewer-plain" class="viewer-plain">Selecione um documento na barra lateral e clique em 👁.</div>
+        <div id="viewer-rich" class="viewer-rich" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Gutenberg tab -->
+    <div id="tab-gutenberg" class="tab-panel">
+      <!-- Barra de busca no catálogo -->
+      <div class="card" style="display:flex;flex-direction:column;gap:0.7rem">
+        <div class="section-title">Buscar no catálogo Project Gutenberg</div>
+        <div class="search-bar">
+          <input type="text" id="gb-query" placeholder="Título, autor, assunto…" style="flex:2" />
+          <input type="text" id="gb-lang" placeholder="Idioma (pt, en…)" style="flex:0.6" />
+          <input type="text" id="gb-topic" placeholder="Tópico" style="flex:0.8" />
+          <select id="gb-limit">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="40">40</option>
+          </select>
+          <button class="btn btn-primary" onclick="gbSearch()">Buscar</button>
+        </div>
+      </div>
+
+      <!-- Resultados do catálogo -->
+      <div id="gb-catalog-results" style="display:flex;flex-direction:column;gap:0.5rem">
+        <div style="color:var(--muted);font-size:0.85rem;text-align:center;margin-top:1rem">
+          Pesquise livros acima ou prospecte diretamente por IDs.
+        </div>
+      </div>
+
+      <!-- Prospectar por IDs -->
+      <div class="card" style="display:flex;flex-direction:column;gap:0.7rem">
+        <div class="section-title">Prospectar por IDs (baixar + indexar)</div>
+        <div class="search-bar">
+          <input type="text" id="gb-ids" placeholder="IDs separados por espaço (ex: 55752 67526)" style="flex:1" />
+          <button class="btn btn-primary" onclick="gbProspectIds()">&#8659; Prospectar</button>
+        </div>
+        <div id="gb-prospect-status" style="font-size:0.82rem;color:var(--muted)"></div>
+      </div>
+
+      <!-- Catálogo local -->
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="section-title" style="margin:0">Catálogo Local</div>
+        <div style="display:flex;gap:0.5rem">
+          <span id="gb-catalog-stats" style="font-size:0.78rem;color:var(--muted)"></span>
+          <button class="btn btn-primary" style="padding:0.3rem 0.8rem;font-size:0.8rem" onclick="gbRefreshCatalog()">&#8635;</button>
+        </div>
+      </div>
+      <div id="gb-local-list" style="display:flex;flex-direction:column;gap:0.35rem">
+        <span style="color:var(--muted);font-size:0.82rem">Nenhum livro no catálogo local ainda.</span>
+      </div>
+    </div>  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// Utilitários
+// ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function toast(msg, type = 'ok') {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.className = '', 3000);
+}
+
+async function apiFetch(url, opts = {}) {
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt);
+  }
+  return res.json();
+}
+
+// ─────────────────────────────────────────────────────────────
+// Tabs
+// ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'graph') loadGraph();
+    if (btn.dataset.tab === 'gutenberg') gbRefreshCatalog();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// Upload / Drag-and-drop
+// ─────────────────────────────────────────────────────────────
+const dropZone = $('drop-zone');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) uploadFile(file);
+});
+
+$('file-input').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) uploadFile(file);
+  e.target.value = '';
+});
+
+async function uploadFile(file) {
+  const status = $('upload-status');
+  status.innerHTML = `<span class="spinner"></span> Ingerindo "${file.name}"…`;
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const data = await apiFetch('/ingest', { method: 'POST', body: fd });
+    toast(`✅ "${data.filename}" indexado — ${data.chunks} chunks, ${data.entities} entidades`);
+    status.textContent = `Último: ${data.filename}`;
+    refreshStats();
+    refreshDocs();
+  } catch(e) {
+    toast(`Erro: ${e.message}`, 'err');
+    status.textContent = 'Falha no upload.';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Busca semântica
+// ─────────────────────────────────────────────────────────────
+$('query-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+async function doSearch() {
+  const query = $('query-input').value.trim();
+  if (!query) { toast('Digite uma consulta.', 'err'); return; }
+  const top_k = parseInt($('topk-sel').value);
+  const container = $('search-results');
+  container.innerHTML = '<span class="spinner"></span> Buscando…';
+
+  try {
+    const data = await apiFetch('/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, top_k }),
+    });
+
+    if (!data.results.length) {
+      container.innerHTML = '<div id="empty-search">Nenhum resultado encontrado.</div>';
+      return;
+    }
+
+    container.innerHTML = data.results.map(r => `
+      <div class="result-card">
+        <div class="result-header">
+          <span class="filename">📄 ${escHtml(r.filename)}</span>
+          <span class="score">${(r.score * 100).toFixed(1)}% relevância</span>
+        </div>
+        <div class="snippet">${escHtml(r.chunk_text)}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    container.innerHTML = '<div id="empty-search" style="color:var(--danger)">Erro na busca.</div>';
+    toast(`Erro: ${e.message}`, 'err');
+  }
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function sanitizeRichClient(html) {
+  if (!html) return '';
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  const blocked = ['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta'];
+  blocked.forEach(tag => doc.querySelectorAll(tag).forEach(n => n.remove()));
+
+  doc.querySelectorAll('*').forEach(el => {
+    [...el.attributes].forEach(attr => {
+      const name = attr.name.toLowerCase();
+      const value = (attr.value || '').trim().toLowerCase();
+      if (name.startsWith('on')) el.removeAttribute(attr.name);
+      if ((name === 'href' || name === 'src') && value.startsWith('javascript:')) {
+        el.removeAttribute(attr.name);
+      }
+    });
+    if (el.tagName.toLowerCase() === 'a') {
+      el.setAttribute('rel', 'noopener noreferrer nofollow');
+      if (!el.getAttribute('target')) el.setAttribute('target', '_blank');
+    }
+  });
+
+  return doc.body ? doc.body.innerHTML : '';
+}
+
+// ─────────────────────────────────────────────────────────────
+// Stats & lista de documentos
+// ─────────────────────────────────────────────────────────────
+async function refreshStats() {
+  try {
+    const h = await apiFetch('/health');
+    const gs = await apiFetch('/graph/stats');
+    $('stat-docs').textContent = h.documents_indexed;
+    $('stat-nodes').textContent = gs.nodes;
+    $('stat-edges').textContent = gs.edges;
+    $('stat-ents').textContent = gs.entities;
+  } catch(e) { console.warn('Stats error', e); }
+}
+
+async function refreshDocs() {
+  const list = $('doc-list');
+  try {
+    const docs = await apiFetch('/documents');
+    if (!docs.length) {
+      list.innerHTML = '<span style="color:var(--muted);font-size:0.82rem">Nenhum documento ainda.</span>';
+      return;
+    }
+    list.innerHTML = docs.map(d => `
+      <div class="doc-item">
+        <span>📄</span>
+        <span class="doc-name" title="${escHtml(d.filename)}">${escHtml(d.filename)}</span>
+        <span style="color:var(--muted);font-size:0.75rem">${d.chunks}ch</span>
+        <button class="view-btn" title="Visualizar" onclick="openViewer('${d.document_id}')">👁</button>
+        <button class="del-btn" title="Remover" onclick="deleteDoc('${d.document_id}')">🗑</button>
+      </div>
+    `).join('');
+  } catch(e) { list.innerHTML = '<span style="color:var(--danger);font-size:0.82rem">Erro ao carregar.</span>'; }
+}
+
+async function deleteDoc(id) {
+  if (!confirm('Remover este documento do índice?')) return;
+  try {
+    await apiFetch(`/documents/${id}`, { method: 'DELETE' });
+    toast('Documento removido.');
+    refreshStats();
+    refreshDocs();
+  } catch(e) { toast(`Erro: ${e.message}`, 'err'); }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Visualizador Plain/Rich
+// ─────────────────────────────────────────────────────────────
+let viewerState = { mode: 'plain', docId: null, filename: null };
+
+function setViewerMode(mode) {
+  viewerState.mode = mode;
+  const isPlain = mode === 'plain';
+  $('viewer-plain').style.display = isPlain ? 'block' : 'none';
+  $('viewer-rich').style.display = isPlain ? 'none' : 'block';
+  $('viewer-plain-btn').className = isPlain ? 'btn btn-primary' : 'btn';
+  $('viewer-rich-btn').className = isPlain ? 'btn' : 'btn btn-primary';
+}
+
+async function openViewer(docId) {
+  viewerState.docId = docId;
+  $('viewer-title').textContent = 'Carregando conteúdo...';
+  $('viewer-plain').textContent = 'Carregando...';
+  $('viewer-rich').innerHTML = '';
+
+  // Troca para aba do visualizador
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="viewer"]').classList.add('active');
+  $('tab-viewer').classList.add('active');
+
+  try {
+    const data = await apiFetch(`/documents/${docId}/content`);
+    viewerState.filename = data.filename;
+    $('viewer-title').textContent = `${data.filename} (${data.format || 'texto'})`;
+    $('viewer-plain').textContent = data.plain_text || '';
+    const safeRich = sanitizeRichClient(data.rich_html || '');
+    $('viewer-rich').innerHTML = safeRich || `<pre class="viewer-plain">${escHtml(data.plain_text || '')}</pre>`;
+    setViewerMode('plain');
+  } catch (e) {
+    $('viewer-title').textContent = 'Falha ao abrir documento';
+    $('viewer-plain').textContent = e.message;
+    $('viewer-rich').innerHTML = '';
+    toast(`Erro ao abrir visualizador: ${e.message}`, 'err');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Grafo (canvas 2D simples — force-directed manual)
+// ─────────────────────────────────────────────────────────────
+let graphNodes = [], graphEdges = [], animId = null;
+
+async function loadGraph() {
+  const info = $('graph-info');
+  info.textContent = 'Carregando…';
+  try {
+    const [nodes, edges] = await Promise.all([
+      apiFetch('/graph/nodes?limit=80'),
+      apiFetch('/graph/edges?limit=150'),
+    ]);
+    graphNodes = nodes.map(n => ({
+      ...n,
+      x: Math.random() * 700 + 50,
+      y: Math.random() * 400 + 50,
+      vx: 0, vy: 0,
+    }));
+    graphEdges = edges;
+    info.textContent = `${nodes.length} nós · ${edges.length} arestas`;
+    if (animId) cancelAnimationFrame(animId);
+    simulate();
+  } catch(e) {
+    info.textContent = 'Erro ao carregar grafo.';
+    toast(`Erro: ${e.message}`, 'err');
+  }
+}
+
+function simulate() {
+  const canvas = $('graph-canvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  const ctx = canvas.getContext('2d');
+
+  const nodeIndex = Object.fromEntries(graphNodes.map(n => [n.id, n]));
+  let step = 0;
+
+  function frame() {
+    const W = canvas.width, H = canvas.height;
+
+    // Force-directed layout
+    if (step < 200) {
+      const k = Math.sqrt((W * H) / (graphNodes.length || 1)) * 0.6;
+      // Repulsão
+      for (let i = 0; i < graphNodes.length; i++) {
+        for (let j = i + 1; j < graphNodes.length; j++) {
+          const a = graphNodes[i], b = graphNodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.max(Math.sqrt(dx*dx + dy*dy), 1);
+          const f = (k * k) / dist;
+          a.vx += (dx / dist) * f; a.vy += (dy / dist) * f;
+          b.vx -= (dx / dist) * f; b.vy -= (dy / dist) * f;
+        }
+      }
+      // Atração pelas arestas
+      for (const e of graphEdges) {
+        const a = nodeIndex[e.source], b = nodeIndex[e.target];
+        if (!a || !b) continue;
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.max(Math.sqrt(dx*dx + dy*dy), 1);
+        const f = (dist * dist) / k * 0.05;
+        a.vx += (dx / dist) * f; a.vy += (dy / dist) * f;
+        b.vx -= (dx / dist) * f; b.vy -= (dy / dist) * f;
+      }
+      // Aplicar velocidade + damping + bounds
+      for (const n of graphNodes) {
+        n.vx *= 0.85; n.vy *= 0.85;
+        n.x = Math.max(20, Math.min(W - 20, n.x + n.vx));
+        n.y = Math.max(20, Math.min(H - 20, n.y + n.vy));
+      }
+      step++;
+    }
+
+    // Desenhar
+    ctx.clearRect(0, 0, W, H);
+
+    // Arestas
+    ctx.strokeStyle = '#30363d';
+    ctx.lineWidth = 1;
+    for (const e of graphEdges) {
+      const a = nodeIndex[e.source], b = nodeIndex[e.target];
+      if (!a || !b) continue;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+
+    // Nós
+    for (const n of graphNodes) {
+      const isDoc = n.type === 'document';
+      const r = isDoc ? 10 : 6;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = isDoc ? '#58a6ff' : '#7ee787';
+      ctx.fill();
+
+      // Label
+      ctx.fillStyle = '#e6edf3';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(
+        (n.label || n.id).slice(0, 18),
+        n.x + r + 3,
+        n.y + 4
+      );
+    }
+
+    animId = requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+// ─────────────────────────────────────────────────────────────
+// Gutenberg Prospector
+// ─────────────────────────────────────────────────────────────
+async function gbSearch() {
+  const q = $('gb-query').value.trim();
+  const lang = $('gb-lang').value.trim();
+  const topic = $('gb-topic').value.trim();
+  const limit = parseInt($('gb-limit').value);
+  const container = $('gb-catalog-results');
+  container.innerHTML = '<span class="spinner"></span> Consultando catálogo Gutenberg…';
+
+  try {
+    const params = new URLSearchParams({ q, lang, topic, limit });
+    const books = await apiFetch(`/prospector/gutenberg/search?${params}`);
+    if (!books.length) {
+      container.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center">Nenhum livro encontrado.</div>';
+      return;
+    }
+    container.innerHTML = books.map(b => gbBookCard(b, true)).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--danger);font-size:0.85rem">Erro ao buscar.</div>';
+    toast(`Erro: ${e.message}`, 'err');
+  }
+}
+
+function gbBookCard(b, showProspect = false) {
+  const icon = b.ingested ? '✅' : (b.local_path ? '📥' : '📋');
+  const authors = b.authors.slice(0,2).join(', ') || 'Desconhecido';
+  const langs = b.languages.join('/') || '?';
+  const subjects = b.subjects.slice(0,3).join(' · ');
+  const prospectBtn = showProspect
+    ? `<button class="btn btn-primary" style="padding:0.25rem 0.7rem;font-size:0.78rem" onclick="gbProspectOne(${b.id},this)">↓ Indexar</button>`
+    : '';
+  return `
+    <div class="card" style="display:flex;gap:0.8rem;align-items:flex-start;padding:0.8rem 1rem">
+      <div style="font-size:1.3rem;line-height:1">${icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(b.title)}</div>
+        <div style="font-size:0.78rem;color:var(--muted)">${escHtml(authors)} &nbsp;·&nbsp; [${langs}] &nbsp;·&nbsp; ID: ${b.id}</div>
+        ${subjects ? `<div style="font-size:0.74rem;color:var(--muted);margin-top:0.2rem">${escHtml(subjects)}</div>` : ''}
+      </div>
+      ${prospectBtn}
+    </div>
+  `;
+}
+
+async function gbProspectOne(bookId, btn) {
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  const status = $('gb-prospect-status');
+  status.innerHTML = `<span class="spinner"></span> Prospectando livro ${bookId}…`;
+  try {
+    const data = await apiFetch('/prospector/gutenberg/prospect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ book_ids: [bookId], limit: 1 }),
+    });
+    const r = data.results[0];
+    const icons = { ok: '✅', already_indexed: '⏭', download_failed: '❌', ingest_failed: '⚠️', downloaded_only: '📥' };
+    status.textContent = `${icons[r.status] || '?'} "${r.title}" — ${r.status} (${r.chunks} chunks, ${r.entities} entidades)`;
+    if (r.status === 'ok') { toast(`✅ "${r.title}" indexado!`); refreshStats(); refreshDocs(); gbRefreshCatalog(); }
+    else if(r.status === 'already_indexed') toast(`Já indexado: "${r.title}"`);
+    else toast(`Falha: ${r.error || r.status}`, 'err');
+    btn.textContent = icons[r.status] || '?';
+  } catch(e) {
+    status.textContent = `Erro: ${e.message}`;
+    toast(`Erro: ${e.message}`, 'err');
+    btn.textContent = '❌';
+    btn.disabled = false;
+  }
+}
+
+async function gbProspectIds() {
+  const raw = $('gb-ids').value.trim();
+  if (!raw) { toast('Informe ao menos um ID.', 'err'); return; }
+  const ids = raw.split(/\s+/).map(Number).filter(n => n > 0);
+  if (!ids.length) { toast('IDs inválidos.', 'err'); return; }
+  const status = $('gb-prospect-status');
+  status.innerHTML = `<span class="spinner"></span> Prospectando ${ids.length} livro(s)…`;
+  try {
+    const data = await apiFetch('/prospector/gutenberg/prospect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ book_ids: ids, limit: ids.length }),
+    });
+    const ok = data.results.filter(r => r.status === 'ok').length;
+    const skip = data.results.filter(r => r.status === 'already_indexed').length;
+    const fail = data.results.filter(r => ['download_failed','ingest_failed'].includes(r.status)).length;
+    status.textContent = `Concluído: ${ok} indexados · ${skip} ignorados · ${fail} falhas`;
+    if (ok > 0) { refreshStats(); refreshDocs(); gbRefreshCatalog(); toast(`✅ ${ok} livro(s) indexado(s)!`); }
+  } catch(e) {
+    status.textContent = `Erro: ${e.message}`;
+    toast(`Erro: ${e.message}`, 'err');
+  }
+}
+
+async function gbRefreshCatalog() {
+  const list = $('gb-local-list');
+  const statsEl = $('gb-catalog-stats');
+  try {
+    const [books, stats] = await Promise.all([
+      apiFetch('/prospector/gutenberg/catalog'),
+      apiFetch('/prospector/gutenberg/stats'),
+    ]);
+    statsEl.textContent = `${stats.total_catalogued} total · ${stats.downloaded} baixados · ${stats.ingested} indexados`;
+    if (!books.length) {
+      list.innerHTML = '<span style="color:var(--muted);font-size:0.82rem">Nenhum livro no catálogo local ainda.</span>';
+      return;
+    }
+    list.innerHTML = books
+      .sort((a,b) => b.ingested - a.ingested || a.id - b.id)
+      .map(b => gbBookCard(b, !b.ingested))
+      .join('');
+  } catch(e) { console.warn('GB catalog error', e); }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────
+refreshStats();
+refreshDocs();
+</script>
+</body>
+</html>

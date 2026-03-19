@@ -1,0 +1,22 @@
+# byte-compiled
+__pycache__/
+*.py[cod]
+*.pyo
+
+# virtual envs
+.venv/
+venv/
+env/
+
+# dados locais (índice FAISS, uploads, grafo)
+data/
+
+# segredos
+.env
+
+# IDEs
+.vscode/settings.json
+.idea/
+
+# macOS
+.DS_Store

@@ -1,0 +1,64 @@
+FABULAS DE ESOPO - MATERIAL INICIAL PADRAO
+
+Este arquivo e carregado automaticamente como material inicial do Alexandria-AI.
+As fabulas abaixo sao adaptacoes curtas em dominio publico para estudo e indexacao.
+
+1) A CIGARRA E A FORMIGA
+No verao, a cigarra cantava enquanto a formiga trabalhava.
+Quando o inverno chegou, a cigarra pediu ajuda.
+A formiga lembrou que trabalho e previsao fazem falta nos tempos dificeis.
+Moral: Quem se prepara hoje sofre menos amanha.
+
+2) A LEBRE E A TARTARUGA
+A lebre ria da lentidao da tartaruga e aceitou uma corrida.
+Confiante demais, a lebre dormiu no caminho.
+A tartaruga seguiu sem parar e venceu.
+Moral: Constancia vence pressa sem disciplina.
+
+3) O LEAO E O RATO
+Um leao poupou a vida de um rato pequeno.
+Dias depois, o leao ficou preso em uma rede.
+O rato roeu as cordas e libertou o leao.
+Moral: Nenhuma ajuda e pequena quando e sincera.
+
+4) O PASTOR E O LOBO
+Um pastor brincou varias vezes gritando: "Lobo!"
+Quando o lobo apareceu de verdade, ninguem acreditou.
+O rebanho foi atacado.
+Moral: A mentira destrói a confianca.
+
+5) A RAPOSA E AS UVAS
+A raposa tentou alcancar uvas altas e nao conseguiu.
+Foi embora dizendo que estavam verdes.
+Moral: E facil desprezar o que nao se consegue.
+
+6) O CORVO E A RAPOSA
+Um corvo segurava um queijo no bico.
+A raposa o elogiou para que ele cantasse.
+Ao abrir o bico, o corvo deixou o queijo cair.
+Moral: Vaidade sem cautela vira prejuizo.
+
+7) O LOBO E O CORDEIRO
+Um lobo quis devorar um cordeiro e inventou acusacoes.
+Mesmo sem razao, atacou.
+Moral: Quem quer fazer o mal procura desculpas.
+
+8) O LENHADOR E A ARVORE
+Um lenhador pedia sombra a uma arvore velha.
+Depois, cortou seus galhos para lenha.
+A arvore secou.
+Moral: Ingratidão destrói o que nos sustenta.
+
+9) A GALINHA DOS OVOS DE OURO
+Um casal tinha uma galinha que botava ovos de ouro.
+Tomados pela ganancia, abriram a galinha para pegar tudo de uma vez.
+Perderam a fonte de riqueza.
+Moral: Ganancia pode acabar com ganhos constantes.
+
+10) O MENINO E O BURRO
+Um menino e o pai tentavam agradar todos no caminho.
+Mudavam de decisao a cada opiniao.
+No fim, ficaram sem rumo e sem resultado.
+Moral: Ouvir todos e bom; perder criterio e ruim.
+
+FIM DO MATERIAL INICIAL

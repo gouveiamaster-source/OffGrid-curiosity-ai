@@ -1,0 +1,33 @@
+# API
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
+
+# NLP & Embeddings (local, off-grid)
+sentence-transformers>=2.6.0
+spacy>=3.7.0
+torch>=2.2.0
+
+# Vector search
+faiss-cpu>=1.8.0
+numpy>=1.26.0
+
+# Knowledge graph
+networkx>=3.2.0
+
+# Document parsing
+pypdf>=4.0.0
+markdown>=3.6
+beautifulsoup4>=4.12.0
+Pillow>=10.2.0
+pytesseract>=0.3.10
+pdf2image>=1.17.0
+bleach>=6.1.0
+
+# Storage
+tinydb>=4.8.0
+
+# Utilities
+pydantic>=2.6.0
+python-dotenv>=1.0.0
+loguru>=0.7.0
